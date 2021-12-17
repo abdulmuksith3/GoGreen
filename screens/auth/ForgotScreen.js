@@ -2,6 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, LogBox, TouchableOpacity, ScrollView, KeyboardAvoidingView, Keyboard} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon} from 'react-native-elements';
+import firebase from "firebase";
+import "firebase/auth";
+import "firebase/firestore";
 
 export default function ForgotScreen({ navigation }) {
   const [email, setEmail] = useState("")
@@ -29,6 +32,32 @@ export default function ForgotScreen({ navigation }) {
         keyboardDidShowListener.remove();
       };
   }, []);
+
+  const recover = () => {
+    if (email.length === 0) {
+      console.log("Email cannot be empty!");
+      return;
+    }
+    
+    firebase.auth().sendPasswordResetEmail(email)
+      .then(() => {
+        console.log("Email sent");
+        navigation.goBack()
+      })
+      .catch((error) => {
+        if (error.code === "auth/user-not-found") {
+          console.log("User does not exist")
+          return false;
+        }
+        if (error.code === "auth/invalid-email") {
+          console.log(`The email address is badly formatted`)
+          return false;
+        }
+        console.log("CODE: ", error.code);
+        console.log("MSG: ",error.message);
+      })
+      ;
+  };
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" && "padding"}>
@@ -73,7 +102,7 @@ export default function ForgotScreen({ navigation }) {
             </View>
             {/* {!isKeyboardVisible &&  */}
             <View style={styles.buttonView}>
-              <TouchableOpacity onPress={()=> console.log("RECOVER - ",email)} style={styles.loginButton}>
+              <TouchableOpacity onPress={()=> recover()} style={styles.loginButton}>
                 <Text style={styles.loginText}>RECOVER</Text>
               </TouchableOpacity>
             </View>

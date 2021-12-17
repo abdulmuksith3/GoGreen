@@ -2,6 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, LogBox, TouchableOpacity, ScrollView, KeyboardAvoidingView, Keyboard} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon} from 'react-native-elements';
+import firebase from "firebase";
+import "firebase/auth";
+import "firebase/firestore";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("")
@@ -31,6 +34,48 @@ export default function LoginScreen({ navigation }) {
         keyboardDidShowListener.remove();
       };
   }, []);
+
+  const login = () => {
+    if (email.length === 0 || password.length === 0) {
+      console.log("Email or Password cannot be empty");
+    } else {
+      firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((data) => {
+        console.log("Successful Login - ", data)
+      })
+      .catch((error) => {
+          if (error.code === "auth/user-not-found") {
+            console.log("User does not exist")
+            return false;
+          }
+          if (error.code === "auth/wrong-password") {
+            console.log(`Email or Password wrong`)
+            return false;
+          }
+          if (error.code === "auth/invalid-email") {
+            console.log(`The email address is badly formatted`)
+            return false;
+          }
+          console.log("CODE: ", error.code);
+          console.log("MSG: ",error.message);
+      });
+    }
+  };
+
+  const anonymousLogin = () => {
+    firebase.auth().signInAnonymously()
+      .then((data) => {
+        console.log("Successful Anonymous Login - ", data)
+      })
+      .catch((error) => {
+          if (error.code === "auth/admin-restricted-operation") {
+            console.log("Access restricted")
+            return false;
+          }
+          console.log("CODE: ", error.code);
+          console.log("MSG: ",error.message);
+      });
+  };
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios"&& "padding"}>
@@ -86,7 +131,7 @@ export default function LoginScreen({ navigation }) {
               </View>   
             </View>
             <View style={styles.buttonView}>
-              <TouchableOpacity onPress={()=> console.log(email,password)} style={styles.loginButton}>
+              <TouchableOpacity onPress={()=> login()} style={styles.loginButton}>
                 <Text style={styles.loginText}>LOGIN</Text>
               </TouchableOpacity>
             </View>
@@ -101,7 +146,7 @@ export default function LoginScreen({ navigation }) {
           </ScrollView>
         </View>
       </View>
-      <TouchableOpacity onPress={()=> console.log("SKIP TO GUEST")} style={styles.skipButton}>
+      <TouchableOpacity onPress={()=> anonymousLogin()} style={styles.skipButton}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>

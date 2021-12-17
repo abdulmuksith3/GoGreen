@@ -2,6 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, LogBox, TouchableOpacity, ScrollView, KeyboardAvoidingView, Keyboard} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon} from 'react-native-elements';
+import firebase from "firebase";
+import "firebase/auth";
+import db from '../../db';
 
 export default function RegisterScreen({ navigation }) {
   const [fullname, setFullname] = useState("")
@@ -34,6 +37,46 @@ export default function RegisterScreen({ navigation }) {
         keyboardDidShowListener.remove();
       };
   }, []);
+
+  const validate = () => {
+    if(fullname.length === 0){
+      console.log("Name cannot be empty")
+      return false;
+    }
+    if (email.length === 0 || password.length === 0) {
+      console.log("registerEmail address or registerPassword cannot be empty")
+      return false;
+    }
+    if (!new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$").test(password)){
+      console.log("Enter a strong registerPassword")
+      return false;
+    }
+    if (password !== confirmPassword) {
+      console.log("Password does not match")
+      return false;
+    }
+    signUp();
+  };
+
+  const signUp = async () => {
+      try {
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+        db.ref(`users/${firebase.auth().currentUser.uid}`).set({
+          id: firebase.auth().currentUser.uid,
+          fullname: fullname,
+          email: email,
+          phone: phone
+        });
+        console.log("DONE", firebase.auth().currentUser.uid);
+      } catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          console.log("That email address is already in use!")
+        }
+        if (error.code === "auth/invalid-email") {
+          console.log("That email address is invalid!")
+        }
+      }
+  };
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" && "padding"}>
@@ -145,7 +188,7 @@ export default function RegisterScreen({ navigation }) {
             </View>
             {!isKeyboardVisible && 
             <View style={styles.buttonView}>
-              <TouchableOpacity onPress={()=> console.log("SIGNUP - ",email,password)} style={styles.loginButton}>
+              <TouchableOpacity onPress={()=> validate()} style={styles.loginButton}>
                 <Text style={styles.loginText}>SIGN UP</Text>
               </TouchableOpacity>
             </View>
