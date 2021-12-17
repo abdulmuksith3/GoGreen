@@ -5,6 +5,7 @@ import {Input, Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import db from '../../db';
+import { showMessage } from "react-native-flash-message";
 
 export default function RegisterScreen({ navigation }) {
   const [fullname, setFullname] = useState("")
@@ -40,19 +41,19 @@ export default function RegisterScreen({ navigation }) {
 
   const validate = () => {
     if(fullname.length === 0){
-      console.log("Name cannot be empty")
+      showErrorMessage("Name cannot be empty")
       return false;
     }
     if (email.length === 0 || password.length === 0) {
-      console.log("registerEmail address or registerPassword cannot be empty")
+      showErrorMessage("Email and Password cannot be empty")
       return false;
     }
     if (!new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$").test(password)){
-      console.log("Enter a strong registerPassword")
+      showErrorMessage("Enter a strong Password")
       return false;
     }
     if (password !== confirmPassword) {
-      console.log("Password does not match")
+      showErrorMessage("Password does not match")
       return false;
     }
     signUp();
@@ -67,15 +68,51 @@ export default function RegisterScreen({ navigation }) {
           email: email,
           phone: phone
         });
-        console.log("DONE", firebase.auth().currentUser.uid);
+        showSuccessMessage("Successful Sign Up");
       } catch (error) {
         if (error.code === "auth/email-already-in-use") {
-          console.log("That email address is already in use!")
+          showErrorMessage("That email address is already in use!")
         }
         if (error.code === "auth/invalid-email") {
-          console.log("That email address is invalid!")
+          showErrorMessage("That email address is invalid!")
         }
       }
+  };
+
+  const showErrorMessage = (message) => {
+    showMessage({
+      message: message,
+      // description: description,
+      type: "default",
+      backgroundColor: colors.RED,
+      color: colors.WHITE,
+      floating: true,
+      icon:{
+        icon:"danger",
+        position:"right"
+      },
+      titleStyle:{
+        fontFamily: font.REGULAR
+      }
+    });
+  };
+
+  const showSuccessMessage = (message) => {
+    showMessage({
+      message: message,
+      // description: description,
+      type: "default",
+      backgroundColor: colors.LIGHT_GREEN,
+      color: colors.WHITE,
+      floating: true,
+      icon:{
+        icon:"success",
+        position:"right"
+      },
+      titleStyle:{
+        fontFamily: font.REGULAR
+      }
+    });
   };
 
   return (

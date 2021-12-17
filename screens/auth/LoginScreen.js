@@ -5,6 +5,7 @@ import {Input, Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
+import { showMessage } from "react-native-flash-message";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("")
@@ -37,23 +38,23 @@ export default function LoginScreen({ navigation }) {
 
   const login = () => {
     if (email.length === 0 || password.length === 0) {
-      console.log("Email or Password cannot be empty");
+      showErrorMessage("Email and Password cannot be empty");
     } else {
       firebase.auth().signInWithEmailAndPassword(email, password)
       .then((data) => {
-        console.log("Successful Login - ", data)
+        showSuccessMessage("Successful Login")
       })
       .catch((error) => {
           if (error.code === "auth/user-not-found") {
-            console.log("User does not exist")
+            showErrorMessage("User does not exist")
             return false;
           }
           if (error.code === "auth/wrong-password") {
-            console.log(`Email or Password wrong`)
+            showErrorMessage(`Email or Password wrong`)
             return false;
           }
           if (error.code === "auth/invalid-email") {
-            console.log(`The email address is badly formatted`)
+            showErrorMessage(`The email address is invalid!`)
             return false;
           }
           console.log("CODE: ", error.code);
@@ -75,6 +76,42 @@ export default function LoginScreen({ navigation }) {
           console.log("CODE: ", error.code);
           console.log("MSG: ",error.message);
       });
+  };
+
+  const showErrorMessage = (message) => {
+    showMessage({
+      message: message,
+      // description: description,
+      type: "default",
+      backgroundColor: colors.RED,
+      color: colors.WHITE,
+      floating: true,
+      icon:{
+        icon:"danger",
+        position:"right"
+      },
+      titleStyle:{
+        fontFamily: font.REGULAR
+      }
+    });
+  };
+
+  const showSuccessMessage = (message) => {
+    showMessage({
+      message: message,
+      // description: description,
+      type: "default",
+      backgroundColor: colors.LIGHT_GREEN,
+      color: colors.WHITE,
+      floating: true,
+      icon:{
+        icon:"success",
+        position:"right"
+      },
+      titleStyle:{
+        fontFamily: font.REGULAR
+      }
+    });
   };
 
   return (
