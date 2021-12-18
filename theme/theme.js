@@ -6,6 +6,7 @@ export const colors = {
     BLACK: '#000000',
     RED: "#E17769",
     LIGHT_GRAY:"#CCCCCC",
+    GRAY:"#f7f7f7"
 }
 
 export const font = {
