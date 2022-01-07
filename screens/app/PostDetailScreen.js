@@ -14,7 +14,7 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function PostDetailScreen({ route, navigation }) {
   const { post, user } = route.params;
-  const [comments, setComments] = useState(null)
+  const [comments, setComments] = useState([])
   const [myComment, setMyComment] = useState("")
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
 
@@ -27,7 +27,7 @@ export default function PostDetailScreen({ route, navigation }) {
       })
       setComments(arr);    
     } else{
-      setComments(null)
+      setComments([])
     }
   }, [post]);
 
@@ -94,7 +94,7 @@ export default function PostDetailScreen({ route, navigation }) {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios"&& "padding"} >
       <View style={styles.header}>
-        <TouchableOpacity style={{alignSelf:"flex-start", marginLeft:"5%"}} onPress={()=> navigation.navigate('HomeStack')}>
+        <TouchableOpacity style={{alignSelf:"flex-start", marginLeft:"5%"}} onPress={()=> navigation.goBack()}>
           <Icon
             name={"arrow-left"}
             size={25}
@@ -105,11 +105,11 @@ export default function PostDetailScreen({ route, navigation }) {
         <View style={styles.postDetailsView}>
           <View style={styles.postDetailsLeft}>
             {post?.user?.photoURL ?
-            <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+            <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: post.user, currentUser: user})}>
               <Image source={{uri: post.user.photoURL}} style={styles.profilePic} />
             </TouchableOpacity>
             :
-            <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+            <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: post.user, currentUser: user})}>
               <Icon
               size={30}
               type="feather"
@@ -140,15 +140,15 @@ export default function PostDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.body}>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
-            {comments ? comments.map((item,index)=> 
+            {comments?.length > 0 ? comments.map((item,index)=> 
               <View key={index} style={[styles.commentContainer, {marginTop: index === 0 ? "8%": "1%"}]}>
                 <View style={styles.commentLeft}>
                 {item?.user?.photoURL ?
-                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user})}>
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>
                     <Image source={{uri: item.user.photoURL}} style={styles.postProfilePic} />
                   </TouchableOpacity>
                   :
-                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user})}>
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>
                     <Icon
                       size={30}
                       type="feather"
@@ -265,11 +265,11 @@ const styles = StyleSheet.create({
     alignItems:"center"
   },
   commentCenter:{
-    flex:4,
+    flex:3,
     // backgroundColor:"blue"
   },
   commentRight:{
-    flex:1,
+    flex:2,
     // backgroundColor:"yellow",
     alignItems:"center"
   },

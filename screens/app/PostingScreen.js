@@ -44,7 +44,7 @@ export default function PostingScreen({ route, navigation }) {
   
   useEffect(() => {
     getUser()
-    console.log("typeeeeeeeee ",type)
+    // console.log("typeeeeeeeee ",type)
   }, []);
 
   const getUser = async () => {
@@ -161,7 +161,7 @@ export default function PostingScreen({ route, navigation }) {
         return `${userData} bought ${count} eco-friendly clothes`
 
       case "Solar Energy":
-        if(post.solarType === "charge"){
+        if(solarType === "charge"){
           return `${userData} charged using solar energy`;
         } else{
           return `${userData} installed solar panels`

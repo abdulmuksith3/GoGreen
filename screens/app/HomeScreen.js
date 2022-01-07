@@ -36,32 +36,34 @@ export default function HomeScreen({ navigation }) {
   };
 
   const getPosts = async () => {
-    console.log("GETTING POSTS")
+    // console.log("GETTING POSTS")
     try {
-      let posts = [];
+      
       db.ref('posts/').on('value', (snapshot) => {
+        let posts = [];
         snapshot.forEach((childSnapshot) => {              
           let post = childSnapshot.val();
           post.id = childSnapshot.key;
           posts.push(post)  
-      })});
-      setPosts(posts)
-      console.log("GOT", posts)
+        })
+        setPosts(posts)
+        // console.log("GOT", posts)
+      });
+      
     } catch (error) {
       console.log("NOPE ", error)
     }
   };
 
   const likePost = async (post) => {
-    let liked = false;
+    let liked = null;
     if(post.likes){
-      console.log("LIKES ", post.likes)
-      post.likes.forEach((element) => {
-        console.log("ELEMETTT ", element)
-        if(element.userId === firebase.auth().currentUser.uid){
-          liked = true
-        }
-      });
+      const data = post.likes;
+      const arr = Object.keys(data).map((i) => {
+        data[i].id = i;
+        return data[i]
+      })
+      liked = arr.filter(x=> x.userId === firebase.auth().currentUser.uid)[0]
     }
     if(liked) {
       try {
@@ -69,8 +71,8 @@ export default function HomeScreen({ navigation }) {
         if(snapshot.val()){
           const like = snapshot.val().likeCount
           db.ref(`posts/${post.id}`).update({likeCount : like - 1});
+          db.ref(`posts/${post.id}/likes/${liked.id}`).remove();
         }
-        console.log("UPDATED REMOVE")
       } catch (error) {
         console.log("Error ", error)
       }
@@ -86,7 +88,6 @@ export default function HomeScreen({ navigation }) {
           db.ref(`posts/${post.id}`).update({likeCount : like + 1});
           db.ref(`posts/${post.id}/likes`).push(data);
         }
-        console.log("UPDATED ADD")
       } catch (error) {
         console.log("Error ", error)
       }
@@ -106,12 +107,12 @@ export default function HomeScreen({ navigation }) {
           </View>
           <View style={styles.headerRight}>
             {user?.photoURL ?
-            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user, currentUser: user})}>
               <Image source={{uri: user.photoURL}} style={styles.profilePic} />
             </TouchableOpacity>
 
             :            
-            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user, currentUser: user})}>
               <Icon
                 size={30}
                 type="feather"
@@ -128,11 +129,11 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.postDetailsView}>
                 <View style={styles.postDetailsLeft}>
                   {item?.user?.photoURL ?
-                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>
                     <Image source={{uri: item.user.photoURL}} style={styles.postProfilePic} />
                   </TouchableOpacity>
                   :
-                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>
                     <Icon
                     size={30}
                     type="feather"
