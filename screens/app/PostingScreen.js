@@ -44,14 +44,14 @@ export default function PostingScreen({ route, navigation }) {
   
   useEffect(() => {
     getUser()
-    // console.log("FIREBASE",firebase.auth().currentUser.uid)
+    console.log("typeeeeeeeee ",type)
   }, []);
 
   const getUser = async () => {
     const snapshot = await db.ref(`users/${firebase.auth().currentUser.uid}`).once('value')
     if(snapshot.val()){
       setUser(snapshot.val())
-      // console.log("USER SET", snapshot.val())
+      console.log("USER SET", snapshot.val())
     }
   };
 
@@ -74,6 +74,7 @@ export default function PostingScreen({ route, navigation }) {
         imageURL: imageURL,
         likeCount: 0,
         solarType: solarType,
+        sentence: getSentence()
         // likes: {
         //   userId: firebase.auth().currentUser.uid,
         // },
@@ -96,6 +97,7 @@ export default function PostingScreen({ route, navigation }) {
       console.log("Error: ", error.code)
       console.log("message: ", error.message)
       showErrorMessage(error.message)
+      setPostButtonDisabled(false)
     }
 };
 
@@ -133,6 +135,41 @@ export default function PostingScreen({ route, navigation }) {
         fontFamily: font.REGULAR
       }
     });
+  };
+
+  const getSentence = () => {
+    let userData = user.fullname.split(" ")[0];
+    let typeName = type.type;
+
+    switch(typeName) {
+      case "Plant":
+        return `${userData} has planted ${count} trees`
+
+      case "Food":
+        return `${userData} consumed environment friendly food`
+
+      case "Carpool":
+        return `${userData} carpooled and saved the environment`   
+
+      case "Paperless":
+        return `${userData} went paperless and saved some trees`
+
+      case "Public Transport":
+        return `${userData} travelled using public transport`
+
+      case "Natural Clothing":
+        return `${userData} bought ${count} eco-friendly clothes`
+
+      case "Solar Energy":
+        if(post.solarType === "charge"){
+          return `${userData} charged using solar energy`;
+        } else{
+          return `${userData} installed solar panels`
+        }
+      default:
+        return `${userData} has help us go green`
+    }
+
   };
 
   const handleCounter = (action) => {
@@ -340,7 +377,7 @@ export default function PostingScreen({ route, navigation }) {
         </ScrollView>
       </View>
       <View style={styles.footer}>
-        <TouchableOpacity onPress={()=>commitPost()} disabled={postButtonDisabled} style={styles.postButton}>
+        <TouchableOpacity onPress={()=>commitPost()} disabled={postButtonDisabled || user === null} style={styles.postButton}>
           <Text style={styles.postText}>POST</Text>
         </TouchableOpacity>
       </View>

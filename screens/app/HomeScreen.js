@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions, Modal} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon, Header} from 'react-native-elements';
 import firebase from "firebase";
@@ -7,31 +7,42 @@ import "firebase/auth";
 import "firebase/firestore";
 import { showMessage } from "react-native-flash-message";
 import db from '../../db';
+import moment from 'moment';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export default function HomeScreen({ navigation }) {
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState(null)
+  const [user, setUser] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  // useEffect(() => {
+  //   const refresh = navigation.addListener('focus', () => {
+  //     getPosts()
+  //  });
+  // }, [navigation]);
 
   useEffect(() => {
+    getUser()
     getPosts()
   }, []);
+
+  const getUser = async () => {
+    const snapshot = await db.ref(`users/${firebase.auth().currentUser.uid}`).once('value')
+    if(snapshot.val()){
+      setUser(snapshot.val())
+      // console.log("USER SET", snapshot.val())
+    }
+  };
 
   const getPosts = async () => {
     console.log("GETTING POSTS")
     try {
       let posts = [];
-      db.ref('posts/').once('value', (snapshot) => {
-        snapshot.forEach(async (childSnapshot) => {              
+      db.ref('posts/').on('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {              
           let post = childSnapshot.val();
           post.id = childSnapshot.key;
-          console.log("SNAPPPP ", post)
-          // let snap = await db.ref(`users/${post.userId}`).once('value');
-          // if(snap.val()){
-          //   console.log("SNAPPPP ", snap.val())
-          //   post.user = snap.val()
-          // }
           posts.push(post)  
       })});
       setPosts(posts)
@@ -41,16 +52,66 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const likePost = async (post) => {
+    let liked = false;
+    if(post.likes){
+      console.log("LIKES ", post.likes)
+      post.likes.forEach((element) => {
+        console.log("ELEMETTT ", element)
+        if(element.userId === firebase.auth().currentUser.uid){
+          liked = true
+        }
+      });
+    }
+    if(liked) {
+      try {
+        const snapshot = await db.ref(`posts/${post.id}`).once('value');
+        if(snapshot.val()){
+          const like = snapshot.val().likeCount
+          db.ref(`posts/${post.id}`).update({likeCount : like - 1});
+        }
+        console.log("UPDATED REMOVE")
+      } catch (error) {
+        console.log("Error ", error)
+      }
+    } else {
+      try {
+        const snapshot = await db.ref(`posts/${post.id}`).once('value');
+        if(snapshot.val()){
+          const like = snapshot.val().likeCount
+          const data = {
+            userId: firebase.auth().currentUser.uid,
+            dateTime: new Date().toString()
+          }
+          db.ref(`posts/${post.id}`).update({likeCount : like + 1});
+          db.ref(`posts/${post.id}/likes`).push(data);
+        }
+        console.log("UPDATED ADD")
+      } catch (error) {
+        console.log("Error ", error)
+      }
+    }
+    
+  };
+
+  
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={{height:windowHeight/20}}></View>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerText}>Hi, Abdul</Text> 
+            <Text style={styles.headerText}>Hi, {user?.fullname}</Text> 
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen")}>
+            {user?.photoURL ?
+            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+              <Image source={{uri: user.photoURL}} style={styles.profilePic} />
+            </TouchableOpacity>
+
+            :            
+            <TouchableOpacity style={styles.headerButton} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
               <Icon
                 size={30}
                 type="feather"
@@ -58,30 +119,38 @@ export default function HomeScreen({ navigation }) {
                 color={colors.WHITE}
               />
             </TouchableOpacity>
+            }   
           </View>
         </View>
         <View style={styles.body}>
           {posts?.length > 0 ? posts.map( (item, index) =>
-            <TouchableOpacity key={index} style={[styles.postContainer, {marginTop: index === 0 ? 0:10}]} onPress={()=>navigation.navigate("PostDetailScreen")} activeOpacity={1}>
+            <TouchableOpacity key={index} onPress={()=>navigation.navigate("+", {screen: "PostDetailScreen", params:{post:item, user:user}})} style={[styles.postContainer, {marginTop: index === 0 ? 0:10}]} activeOpacity={1}>
               <View style={styles.postDetailsView}>
                 <View style={styles.postDetailsLeft}>
-                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>console.log("UserId", item.userId)}>
-                    <Icon
-                      size={30}
-                      type="feather"
-                      name={"user"}
-                      color={colors.WHITE}
-                    />
+                  {item?.user?.photoURL ?
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+                    <Image source={{uri: item.user.photoURL}} style={styles.postProfilePic} />
                   </TouchableOpacity>
-                  
+                  :
+                  <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: user})}>
+                    <Icon
+                    size={30}
+                    type="feather"
+                    name={"user"}
+                    color={colors.WHITE}
+                  />
+                 </TouchableOpacity>
+                }
                 </View>
                 <View style={styles.postDetailsCenter}>
-                  <Text style={styles.postTextOne}>Alice planted 2 trees</Text>
-                  <Text style={styles.postTextTwo}>{item.dateTime && item.dateTime} {item.location && " at "} {item.location && item.location}</Text>
+                  <Text style={styles.postTextOne}>
+                    {item.sentence ? item.sentence : ""}
+                  </Text>
+                  <Text style={styles.postTextTwo}>{item.dateTime && moment(item.dateTime).format('ddd, DD MMM YY h:mm')} {item.location && "at"} {item.location && item.location}</Text>
                 </View>
                 <View style={styles.postDetailsRight}>
                   <Text style={styles.likeCountLiked}>{item.likeCount ? item.likeCount : 0}</Text>
-                  <TouchableOpacity onPress={()=>console.log("LIKE")} style={styles.likeBtn}>
+                  <TouchableOpacity onPress={()=>likePost(item)} style={styles.likeBtn}>
                     <Icon
                       size={29}
                       type="feather"
@@ -95,11 +164,8 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.postImageView}>
                   <Image
                     style={styles.postImage}
-                    source={require('../../assets/pots.jpg')}
+                    source={{uri: item.imageURL}}
                     defaultSource={require('../../assets/loading.gif')}
-                    // source={{
-                    //   uri: 'https://reactnative.dev/img/tiny_logo.png',
-                    // }}
                   />
                 </View>
               }
@@ -113,7 +179,18 @@ export default function HomeScreen({ navigation }) {
             {/* SCROLLVIEW EXTRA SPACE */}
           </View>
         </View>
-      </ScrollView>    
+      </ScrollView>  
+
+      {/* <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <PostDetailScreen />
+      </Modal>   */}
     </View>
   );
 }
@@ -165,8 +242,18 @@ const styles = StyleSheet.create({
     fontSize:24,
     paddingLeft:"7%"
   },
-
-  
+  profilePic:{
+    height:65,
+    width:65,
+    borderRadius:100,
+    resizeMode:"cover"
+  },  
+  postProfilePic:{
+    height:55,
+    width:55,
+    borderRadius:100,
+    resizeMode:"cover"
+  },  
   body:{
     backgroundColor:colors.GRAY,
     // flex:3.5,
@@ -265,5 +352,6 @@ const styles = StyleSheet.create({
     fontFamily:font.REGULAR,
     fontSize:16,
     color: colors.GREEN
-  }
+  },
+  
 });

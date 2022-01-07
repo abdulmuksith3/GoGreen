@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, LogBox, TouchableOpacity} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme/theme';
@@ -27,8 +27,8 @@ function HomeStack() {
     >
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-      <Stack.Screen name="PostScreen" component={PostScreen} />
-      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
+      {/* <Stack.Screen name="PostScreen" component={PostScreen} /> */}
+      {/* <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  /> */}
     </Stack.Navigator> 
   );
 }
@@ -42,7 +42,7 @@ function StatsStack() {
     >
       <Stack.Screen name="StatsScreen" component={StatsScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-      <Stack.Screen name="PostScreen" component={PostScreen} />
+      {/* <Stack.Screen name="PostScreen" component={PostScreen} /> */}
     </Stack.Navigator> 
   );
 }
@@ -56,13 +56,21 @@ function PostStack() {
     >
       <Stack.Screen name="PostScreen" component={PostScreen} />
       <Stack.Screen name="PostingScreen" component={PostingScreen}/>
+      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  /> 
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator> 
   );
 }
 
+
+
+
+
 export default function AppContainer() { 
     return (
-      <NavigationContainer>
+      <NavigationContainer
+        // onStateChange={(x)=>console.log("----",getFocusedRouteNameFromRoute(x))}
+      >
         {/* <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Register" component={DetailsScreen} />
@@ -88,7 +96,9 @@ export default function AppContainer() {
           }}>
 
           <Tab.Screen name="HomeStack" component={HomeStack}
-            options={{
+            options={({route}) => (
+              // console.log(route),
+              {
               // tabBarBadge:10
               tabBarIcon: (tab) => {
                 return (
@@ -100,7 +110,7 @@ export default function AppContainer() {
                     />
                 );
               }
-            }}
+            })}
             
           />
           <Tab.Screen name="+" component={PostStack} 
@@ -128,7 +138,7 @@ export default function AppContainer() {
                       />
                   </TouchableOpacity>
               ,
-              tabBarStyle: route.name === "+" && {position:"absolute", bottom:"-200%"}
+              tabBarStyle: {position:"absolute", bottom:"-200%"}
               
             }
             )
@@ -147,6 +157,7 @@ export default function AppContainer() {
                     />
                 );
               },
+              tabBarVisible: false
             }}
           />
         </Tab.Navigator>
