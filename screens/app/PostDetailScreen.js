@@ -17,19 +17,63 @@ export default function PostDetailScreen({ route, navigation }) {
   const [comments, setComments] = useState([])
   const [myComment, setMyComment] = useState("")
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
+  const [allUsers, setAllUsers] = useState(null)
+
+  useEffect(() => {
+    const parent = navigation.getParent();
+      parent.setOptions({
+        tabBarStyle: {position:"absolute", bottom:"-100%"}
+      });
+      return () =>
+        parent.setOptions({
+          tabBarStyle: {
+          backgroundColor: colors.WHITE,
+          height:80,
+          borderTopRightRadius: 35,
+          borderTopLeftRadius: 35,
+          // borderRadius:35,
+          position:"absolute",
+          bottom:0}
+        });
+  }, [route]);
+
+  useEffect(() => {
+    getAllUsers()
+  }, []);
+
+  const getAllUsers = async () => {
+    // console.log("GETTING POSTS")
+    try {
+      
+      db.ref('users/').once('value', (snapshot) => {
+        let posts = [];
+        snapshot.forEach((childSnapshot) => {              
+          let post = childSnapshot.val();
+          post.id = childSnapshot.key;
+          posts.push(post)  
+        })
+        setAllUsers(posts)
+        // console.log("GOT", posts)
+      });
+      
+    } catch (error) {
+      console.log("NOPE ", error)
+    }
+  };
 
   useEffect(() => {
     // console.log("POST ", post.comments)
-    if(post.comments){
+    if(post.comments && allUsers){
       const data = post.comments;
       const arr = Object.keys(data).map((i) => {
+        data[i].user = allUsers.filter(x=>x.id === post.userId)[0]
         return data[i]
       })
       setComments(arr);    
     } else{
       setComments([])
     }
-  }, [post]);
+  }, [post, allUsers]);
 
   const commitComment = async () => {
     Keyboard.dismiss()
@@ -382,7 +426,7 @@ const styles = StyleSheet.create({
     // fontWeight:"bold",
     // backgroundColor:"red"
     // height:20
-    fontFamily: font.SEMI_BOLD,
+    fontFamily: font.REGULAR,
   },
   inputContainer:{
     borderBottomWidth:0,

@@ -29,7 +29,7 @@ const data = {
       strokeWidth: 2 
     }
   ],
-  legend: ["Pollution"]
+  // legend: ["Pollution"]
 };
 
 const chartConfig = {
@@ -57,6 +57,8 @@ export default function StatsScreen({ navigation }) {
   const [activity, setActivity] = useState(null)
   const [pollution, setPollution] = useState(null)
   const [user, setUser] = useState(null)
+
+  
 
   useEffect(() => {
     getUser()
@@ -95,9 +97,9 @@ export default function StatsScreen({ navigation }) {
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         strokeWidth: 2 
       }]
-    let legend=["Pollution"]
+    // let legend=["Pollution"]
 
-    setPollution({labels, datasets, legend})
+    setPollution({labels, datasets})
 
   };
 

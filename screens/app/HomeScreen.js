@@ -15,6 +15,7 @@ const windowHeight = Dimensions.get('window').height;
 export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState(null)
   const [user, setUser] = useState(null)
+  const [allUsers, setAllUsers] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
   // useEffect(() => {
   //   const refresh = navigation.addListener('focus', () => {
@@ -24,14 +25,41 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     getUser()
-    getPosts()
+    getAllUsers()
+    // getPosts()
   }, []);
+
+  useEffect(() => {
+    if(allUsers){
+      getPosts()
+    }
+  }, [allUsers]);
 
   const getUser = async () => {
     const snapshot = await db.ref(`users/${firebase.auth().currentUser.uid}`).once('value')
     if(snapshot.val()){
       setUser(snapshot.val())
       // console.log("USER SET", snapshot.val())
+    }
+  };
+
+  const getAllUsers = async () => {
+    // console.log("GETTING POSTS")
+    try {
+      
+      db.ref('users/').once('value', (snapshot) => {
+        let posts = [];
+        snapshot.forEach((childSnapshot) => {              
+          let post = childSnapshot.val();
+          post.id = childSnapshot.key;
+          posts.push(post)  
+        })
+        setAllUsers(posts)
+        // console.log("GOT", posts)
+      });
+      
+    } catch (error) {
+      console.log("NOPE ", error)
     }
   };
 
@@ -44,6 +72,7 @@ export default function HomeScreen({ navigation }) {
         snapshot.forEach((childSnapshot) => {              
           let post = childSnapshot.val();
           post.id = childSnapshot.key;
+          post.user = allUsers.filter(x=>x.id === post.userId)[0]
           posts.push(post)  
         })
         setPosts(posts)
@@ -125,12 +154,12 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style={styles.body}>
           {posts?.length > 0 ? posts.map( (item, index) =>
-            <TouchableOpacity key={index} onPress={()=>navigation.navigate("+", {screen: "PostDetailScreen", params:{post:item, user:user}})} style={[styles.postContainer, {marginTop: index === 0 ? 0:10}]} activeOpacity={1}>
+            <TouchableOpacity key={index} onPress={()=>navigation.navigate("PostDetailScreen", {post:item, user:user})} style={[styles.postContainer, {marginTop: index === 0 ? 0:10}]} activeOpacity={1}>
               <View style={styles.postDetailsView}>
                 <View style={styles.postDetailsLeft}>
-                  {item?.user?.photoURL ?
+                  {item?.user?.photoURL ? 
                   <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>
-                    <Image source={{uri: item.user.photoURL}} style={styles.postProfilePic} />
+                    <Image source={{uri: item?.user?.photoURL}} style={styles.postProfilePic} />
                   </TouchableOpacity>
                   :
                   <TouchableOpacity style={styles.postUserBtn} onPress={()=>navigation.navigate("ProfileScreen", {user: item.user, currentUser: user})}>

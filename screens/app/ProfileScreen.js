@@ -67,6 +67,25 @@ export default function ProfileScreen({ route, navigation }) {
     },
   ])
 
+  // useEffect(() => {
+  //   const parent = navigation.getParent();
+  //     parent.setOptions({
+  //       tabBarStyle: {position:"absolute", bottom:"-100%"}
+  //     });
+  //     return () =>
+  //       parent.setOptions({
+  //         tabBarStyle: {
+  //         backgroundColor: colors.WHITE,
+  //         height:80,
+  //         borderTopRightRadius: 35,
+  //         borderTopLeftRadius: 35,
+  //         // borderRadius:35,
+  //         position:"absolute",
+  //         bottom:0
+  //         }
+  //       });
+  // }, [navigation]);
+
   useEffect(() => {
     getHistory()
   }, []);
@@ -330,7 +349,7 @@ export default function ProfileScreen({ route, navigation }) {
             <Text style={styles.histText}>History</Text>
             <ScrollView style={styles.scrollView}>
               {history?.length > 0 ? history.map((item, index) => 
-                <TouchableOpacity key={index} onPress={()=>navigation.navigate("+", {screen: "PostDetailScreen", params:{post:item, user:currentUser}})}   style={styles.histContainer}>
+                <TouchableOpacity key={index} onPress={()=>navigation.navigate("PostDetailScreen", {post:item, user:currentUser})}   style={styles.histContainer}>
                   <View style={styles.histLeft}>
                     <View style={styles.typeIcon}>
                       {/* <Icon

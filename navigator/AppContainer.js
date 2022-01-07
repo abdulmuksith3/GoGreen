@@ -28,7 +28,7 @@ function HomeStack() {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       {/* <Stack.Screen name="PostScreen" component={PostScreen} /> */}
-      {/* <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  /> */}
+      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  />
     </Stack.Navigator> 
   );
 }
@@ -42,7 +42,8 @@ function StatsStack() {
     >
       <Stack.Screen name="StatsScreen" component={StatsScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-      {/* <Stack.Screen name="PostScreen" component={PostScreen} /> */}
+      <Stack.Screen name="PostScreen" component={PostScreen} />
+      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  />
     </Stack.Navigator> 
   );
 }
@@ -56,7 +57,7 @@ function PostStack() {
     >
       <Stack.Screen name="PostScreen" component={PostScreen} />
       <Stack.Screen name="PostingScreen" component={PostingScreen}/>
-      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  /> 
+      {/* <Stack.Screen name="PostDetailScreen" component={PostDetailScreen}  />  */}
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator> 
   );
@@ -96,8 +97,7 @@ export default function AppContainer() {
           }}>
 
           <Tab.Screen name="HomeStack" component={HomeStack}
-            options={({route}) => (
-              // console.log(route),
+            options={({route, navigation}) => (
               {
               // tabBarBadge:10
               tabBarIcon: (tab) => {
@@ -110,7 +110,8 @@ export default function AppContainer() {
                     />
                 );
               }
-            })}
+            }
+            )}
             
           />
           <Tab.Screen name="+" component={PostStack} 
