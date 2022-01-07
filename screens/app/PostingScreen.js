@@ -15,10 +15,12 @@ const windowHeight = Dimensions.get('window').height;
 export default function PostingScreen({ route, navigation }) {
   const { type } = route.params;
   const [modalVisible, setModalVisible] = useState(false)
+  const [user, setUser] = useState(null)
   const [count, setCount] = useState(1)
   const [solarType, setSolarType] = useState("charge")
   const [image, setImage] = useState(null)
   const [selectedLocation, setSelectedLocation] = useState({id:1, name:"Home"})
+  const [postButtonDisabled, setPostButtonDisabled] = useState(false)
   const [locations, setLocations] = useState([
     {
       id: 1,
@@ -41,10 +43,21 @@ export default function PostingScreen({ route, navigation }) {
   ])
   
   useEffect(() => {
+    getUser()
+    // console.log("FIREBASE",firebase.auth().currentUser.uid)
   }, []);
+
+  const getUser = async () => {
+    const snapshot = await db.ref(`users/${firebase.auth().currentUser.uid}`).once('value')
+    if(snapshot.val()){
+      setUser(snapshot.val())
+      // console.log("USER SET", snapshot.val())
+    }
+  };
 
 
   const commitPost = async () => {
+    setPostButtonDisabled(true)
     let imageURL = null;
     if(image){
       imageURL = await uploadImage()
@@ -52,6 +65,7 @@ export default function PostingScreen({ route, navigation }) {
 
     try {
       db.ref(`posts`).push({
+        user: user,
         userId: firebase.auth().currentUser.uid,
         dateTime: new Date().toString(),
         location: selectedLocation.name,
@@ -59,7 +73,7 @@ export default function PostingScreen({ route, navigation }) {
         amount: count,
         imageURL: imageURL,
         likeCount: 0,
-        solarType: solarType
+        solarType: solarType,
         // likes: {
         //   userId: firebase.auth().currentUser.uid,
         // },
@@ -70,6 +84,7 @@ export default function PostingScreen({ route, navigation }) {
         // }
       });
       showSuccessMessage("Posted Successfully!");
+      setPostButtonDisabled(false)
       navigation.goBack()
     } catch (error) {
       // if (error.code === "auth/email-already-in-use") {
@@ -325,7 +340,7 @@ export default function PostingScreen({ route, navigation }) {
         </ScrollView>
       </View>
       <View style={styles.footer}>
-        <TouchableOpacity onPress={()=>commitPost()} style={styles.postButton}>
+        <TouchableOpacity onPress={()=>commitPost()} disabled={postButtonDisabled} style={styles.postButton}>
           <Text style={styles.postText}>POST</Text>
         </TouchableOpacity>
       </View>
