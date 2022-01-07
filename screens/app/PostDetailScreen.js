@@ -11,6 +11,7 @@ export default function PostDetailScreen({ navigation }) {
   const [email, setEmail] = useState("")
 
   useEffect(() => {
+    
   }, []);
 
   return (

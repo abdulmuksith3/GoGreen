@@ -13,7 +13,7 @@ import StatsScreen from '../screens/app/StatsScreen'
 import ProfileScreen from '../screens/app/ProfileScreen'
 import PostScreen from '../screens/app/PostScreen'
 import PostDetailScreen from '../screens/app/PostDetailScreen'
-
+import PostingScreen from '../screens/app/PostingScreen'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,6 +28,7 @@ function HomeStack() {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="PostScreen" component={PostScreen} />
+      <Stack.Screen name="PostDetailScreen" component={PostDetailScreen} />
     </Stack.Navigator> 
   );
 }
@@ -42,6 +43,19 @@ function StatsStack() {
       <Stack.Screen name="StatsScreen" component={StatsScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="PostScreen" component={PostScreen} />
+    </Stack.Navigator> 
+  );
+}
+
+function PostStack() {
+  return (
+    <Stack.Navigator initialRouteName="PostScreen"
+      screenOptions={{
+        headerShown:false,
+      }}
+    >
+      <Stack.Screen name="PostScreen" component={PostScreen} />
+      <Stack.Screen name="PostingScreen" component={PostingScreen}/>
     </Stack.Navigator> 
   );
 }
@@ -69,8 +83,9 @@ export default function AppContainer() {
               bottom:0
             },
             tabBarInactiveTintColor: colors.DARK_GRAY,
-            tabBarActiveTintColor: colors.GREEN
-            }}>
+            tabBarActiveTintColor: colors.GREEN,
+
+          }}>
 
           <Tab.Screen name="HomeStack" component={HomeStack}
             options={{
@@ -84,15 +99,17 @@ export default function AppContainer() {
                       color={tab.focused ? colors.GREEN : colors.DARK_GRAY}
                     />
                 );
-              },
+              }
             }}
             
           />
-          <Tab.Screen name="+" component={PostDetailScreen} 
-            options={{
+          <Tab.Screen name="+" component={PostStack} 
+            options={({route}) => (
+              {
               // tabBarBadge:10
               tabBarButton: props => 
                   <TouchableOpacity {...props}
+                    // onPress={()=>console.log("HEYYYY ", props)}
                     style={{
                       backgroundColor:colors.GREEN,
                       aspectRatio:1/1,
@@ -110,10 +127,12 @@ export default function AppContainer() {
                         color={colors.WHITE}
                       />
                   </TouchableOpacity>
-                  
-                ,
+              ,
+              tabBarStyle: route.name === "+" && {position:"absolute", bottom:"-200%"}
               
-            }}
+            }
+            )
+          }
           />
           <Tab.Screen name="Statistics" component={StatsStack} 
             options={{

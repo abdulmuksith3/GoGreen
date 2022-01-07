@@ -42,6 +42,7 @@ export default function App() {
     return (
       user !== null ? (
         <>
+        {/* <StatusBar style="auto" backgroundColor='#fff'/> */}
         <AppContainer />
         <FlashMessage position="bottom" />
         </>
