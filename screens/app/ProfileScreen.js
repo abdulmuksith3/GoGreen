@@ -318,7 +318,7 @@ export default function ProfileScreen({ route, navigation }) {
                   <Text style={styles.noHistoryText}>There is no history</Text>
                 </View>
               }
-              
+              {history?.length > 0 && <View style={{height:100}}></View>}
             </ScrollView>
           </View>
         </View>

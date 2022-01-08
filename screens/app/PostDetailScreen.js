@@ -66,7 +66,8 @@ export default function PostDetailScreen({ route, navigation }) {
     if(post.comments && allUsers){
       const data = post.comments;
       const arr = Object.keys(data).map((i) => {
-        data[i].user = allUsers.filter(x=>x.id === post.userId)[0]
+        const comment = data[i]
+        data[i].user = allUsers.filter(x=>x.id === comment.user.id)[0]
         return data[i]
       })
       setComments(arr);    
