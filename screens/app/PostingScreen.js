@@ -51,7 +51,7 @@ export default function PostingScreen({ route, navigation }) {
     const snapshot = await db.ref(`users/${firebase.auth().currentUser.uid}`).once('value')
     if(snapshot.val()){
       setUser(snapshot.val())
-      console.log("USER SET", snapshot.val())
+      // console.log("USER SET", snapshot.val())
     }
   };
 

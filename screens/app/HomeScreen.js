@@ -123,6 +123,24 @@ export default function HomeScreen({ navigation }) {
     
   };
 
+  const getLike = (post) => {
+    let liked = null;
+    if(post.likes){
+      const data = post.likes;
+      const arr = Object.keys(data).map((i) => {
+        data[i].id = i;
+        return data[i]
+      })
+      liked = arr.filter(x=> x.userId === firebase.auth().currentUser.uid)[0]
+    }
+    if(liked) {
+      return true
+    } else {
+      return false
+    }
+    
+  };
+
   
 
   return (
@@ -184,7 +202,7 @@ export default function HomeScreen({ navigation }) {
                       size={29}
                       type="feather"
                       name={"heart"}
-                      color={colors.GREEN}
+                      color={getLike(item) === true ? colors.GREEN : colors.DARK_GRAY}
                     />
                   </TouchableOpacity>
                 </View>
