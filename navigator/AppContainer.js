@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, LogBox, TouchableOpacity} from 'react-native';
-import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import React from 'react';
+import { TouchableOpacity} from 'react-native';
+import { NavigationContainer,  } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme/theme';

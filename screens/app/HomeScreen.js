@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions, Modal} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions} from 'react-native';
 import {colors, font} from '../../theme/theme';
-import {Input, Icon, Header} from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
-import { showMessage } from "react-native-flash-message";
 import db from '../../db';
 import moment from 'moment';
 
@@ -16,7 +15,7 @@ export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState(null)
   const [user, setUser] = useState(null)
   const [allUsers, setAllUsers] = useState(null)
-  const [modalVisible, setModalVisible] = useState(false)
+  // const [modalVisible, setModalVisible] = useState(false)
   // useEffect(() => {
   //   const refresh = navigation.addListener('focus', () => {
   //     getPosts()
@@ -75,7 +74,7 @@ export default function HomeScreen({ navigation }) {
           post.user = allUsers.filter(x=>x.id === post.userId)[0]
           posts.push(post)  
         })
-        setPosts(posts)
+        setPosts(posts.reverse())
         // console.log("GOT", posts)
       });
       
@@ -338,7 +337,8 @@ const styles = StyleSheet.create({
   },
   postImageView:{
     // borderWidth:2,
-    flex:1
+    flex:1,
+    marginBottom:10
   },
   postImage:{
     resizeMode:'cover',

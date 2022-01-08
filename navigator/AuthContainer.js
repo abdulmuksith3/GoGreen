@@ -1,9 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, LogBox} from 'react-native';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/auth/LoginScreen';
-import WelcomeScreen from '../screens/auth/WelcomeScreen';
+// import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotScreen from '../screens/auth/ForgotScreen';
 
@@ -13,11 +12,11 @@ export default function AuthContainer() {
     return (
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login" >
-          <Stack.Screen name="Welcome" component={WelcomeScreen} 
+          {/* <Stack.Screen name="Welcome" component={WelcomeScreen} 
             options={{
               headerShown:false
             }}
-          />
+          /> */}
 
           <Stack.Screen name="Login" component={LoginScreen}
             options={{

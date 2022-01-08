@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, LogBox, TouchableOpacity, ScrollView, KeyboardAvoidingView, Keyboard} from 'react-native';
+import {StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Keyboard} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
 import { showMessage } from "react-native-flash-message";
+import logo from '../../assets/logo_no_bg.png'
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("")
@@ -123,7 +124,7 @@ export default function LoginScreen({ navigation }) {
       
       <View style={styles.containerTop}>
         <View style={styles.top}>
-          <Text style={{fontFamily:font.REGULAR}}>LOGO logo</Text>
+          <Image source={logo} style={styles.logo} />
         </View>
         <View style={styles.bottom}>
           <ScrollView contentContainerStyle={styles.scrollView}>
@@ -183,9 +184,9 @@ export default function LoginScreen({ navigation }) {
           </ScrollView>
         </View>
       </View>
-      <TouchableOpacity onPress={()=> anonymousLogin()} style={styles.skipButton}>
+      {/* <TouchableOpacity onPress={()=> anonymousLogin()} style={styles.skipButton}>
         <Text style={styles.skipText}>Skip</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </KeyboardAvoidingView>
   );
 }
@@ -196,6 +197,12 @@ const styles = StyleSheet.create({
     // backgroundColor:colors.WHITE
   },
 
+  logo:{
+    width: "80%",
+    // height:100,
+    resizeMode:"contain"
+
+  },
 
   containerBottom: {
     flex: 1,

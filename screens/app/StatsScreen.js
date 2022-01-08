@@ -1,18 +1,18 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Image} from 'react-native';
+import {StyleSheet, Text, View,  ScrollView, Dimensions} from 'react-native';
 import {colors, font} from '../../theme/theme';
-import {Input, Icon} from 'react-native-elements';
+// import {Input, Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
-import { showMessage } from "react-native-flash-message";
+// import { showMessage } from "react-native-flash-message";
 import {
   LineChart,
-  BarChart,
-  PieChart,
+  // BarChart,
+  // PieChart,
   ProgressChart,
-  ContributionGraph,
-  StackedBarChart
+  // ContributionGraph,
+  // StackedBarChart
 } from "react-native-chart-kit";
 import db from '../../db';
 
@@ -93,7 +93,7 @@ export default function StatsScreen({ navigation }) {
 
     let labels = ["aqicn", "aqius", "hu", "tp", "ws"];
     let datasets = [{
-        data: [pollution.aqicn, pollution.aqius, weather.hu, weather.tp, weather.ws],
+        data: [pollution.aqicn ? pollution.aqicn : 0, pollution.aqius ? pollution.aqius : 0, weather.hu ? weather.hu : 0, weather.tp ? weather.tp : 0, weather.ws ? weather.ws : 0],
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         strokeWidth: 2 
       }]
@@ -114,59 +114,61 @@ export default function StatsScreen({ navigation }) {
   const getActivity = async () => {
     try {
       db.ref('posts/').orderByChild("userId").equalTo(firebase.auth().currentUser.uid).once('value', (snapshot) => {
-        let plant = 0;
-        let food = 0;
-        let carpool = 0;
-        let paperless = 0;
-        let publicTransport = 0;
-        let clothing = 0;
-        let solar = 0;
-        let total = 0;
+        if(snapshot.val()){       
+          let plant = 0;
+          let food = 0;
+          let carpool = 0;
+          let paperless = 0;
+          let publicTransport = 0;
+          let clothing = 0;
+          let solar = 0;
+          let total = 0;
 
-        snapshot.forEach((childSnapshot) => {              
-          let temp = childSnapshot.val();
-          temp.id = childSnapshot.key;
-          
-          switch(temp.type) {
-            case "Plant":
-              plant += 1;
-              total +=1;
-              break;
-            case "Food":
-              food += 1;
-              total +=1;
-              break;
-            case "Carpool":
-              carpool += 1;
-              total +=1;
-              break;
-            case "Paperless":
-              paperless += 1;
-              total +=1;
-              break;
-            case "Public Transport":
-              publicTransport += 1;
-              total +=1;
-              break;
-            case "Natural Clothing":
-              clothing += 1;
-              total +=1;
-              break;
-            case "Solar Energy":
-              solar += 1;
-              total +=1;
-              break;
-          }
-        })
-        const data = [
-          plant/total, 
-          food/total, 
-          carpool/total, 
-          paperless/total,
-          publicTransport/total,
-          clothing/total,
-          solar/total,]
-        setActivity(data)
+          snapshot.forEach((childSnapshot) => {              
+            let temp = childSnapshot.val();
+            temp.id = childSnapshot.key;
+            
+            switch(temp.type) {
+              case "Plant":
+                plant += 1;
+                total +=1;
+                break;
+              case "Food":
+                food += 1;
+                total +=1;
+                break;
+              case "Carpool":
+                carpool += 1;
+                total +=1;
+                break;
+              case "Paperless":
+                paperless += 1;
+                total +=1;
+                break;
+              case "Public Transport":
+                publicTransport += 1;
+                total +=1;
+                break;
+              case "Natural Clothing":
+                clothing += 1;
+                total +=1;
+                break;
+              case "Solar Energy":
+                solar += 1;
+                total +=1;
+                break;
+            }
+          })
+          const data = [
+            plant/total, 
+            food/total, 
+            carpool/total, 
+            paperless/total,
+            publicTransport/total,
+            clothing/total,
+            solar/total,]
+          setActivity(data)
+        }
       });
       
     } catch (error) {

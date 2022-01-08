@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, ScrollView, Image} from 'react-native';
 import {colors, font} from '../../theme/theme';
-import {Input, Icon, getIconType} from 'react-native-elements';
+import { Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
@@ -15,77 +15,7 @@ export default function ProfileScreen({ route, navigation }) {
   const { user, currentUser } = route.params;
   const [image, setImage] = useState(null)
   const [history, setHistory] = useState([])
-  const [types, setTypes] = useState([
-    {
-      id:1,
-      type: "Plant",
-      description: "Did you plant a tree today?",
-      iconName: "tree",
-      iconType: "entypo"
-    },
-    {
-      id:2,
-      type: "Food",
-      description: "Did you avoid food wasteage or eat less meat or avoid processed foods with wasteful packaging?",
-      iconName: "no-food",
-      iconType: "material"
-    },
-    {
-      id:3,
-      type: "Carpool",
-      description: "Did you share a car or taxi with another person instead of going alone?",
-      iconName: "slideshare",
-      iconType: "entypo"
-    },
-    {
-      id:4,
-      type: "Paperless",
-      description: "Did you avoid printing on paper at work or home?",
-      iconName: "print-disabled",
-      iconType: "material"
-    },
-    {
-      id:5,
-      type: "Public Transport",
-      description: "Did you use the public transport as your mode of travel today?",
-      iconName: "train",
-      iconType: "material"
-    },
-    {
-      id:6,
-      type: "Natural Clothing",
-      description: "Did you avoid synthetic clothing and buy cotton or other naturally made fabric?",
-      iconName: "shirt",
-      iconType: "ionicon"
-    },
-    {
-      id:7,
-      type: "Solar Energy",
-      description: "Did you use solar energy to charge your electronics? or did you install a solar panel or solar water heater?",
-      iconName: "solar-panel",
-      iconType: "material-community"
-    },
-  ])
-
-  // useEffect(() => {
-  //   const parent = navigation.getParent();
-  //     parent.setOptions({
-  //       tabBarStyle: {position:"absolute", bottom:"-100%"}
-  //     });
-  //     return () =>
-  //       parent.setOptions({
-  //         tabBarStyle: {
-  //         backgroundColor: colors.WHITE,
-  //         height:80,
-  //         borderTopRightRadius: 35,
-  //         borderTopLeftRadius: 35,
-  //         // borderRadius:35,
-  //         position:"absolute",
-  //         bottom:0
-  //         }
-  //       });
-  // }, [navigation]);
-
+  
   useEffect(() => {
     getHistory()
   }, []);
@@ -93,7 +23,7 @@ export default function ProfileScreen({ route, navigation }) {
   const getHistory = async () => {
     // console.log("GETTING POSTS")
     try {
-      db.ref('posts/').orderByChild("userId").equalTo(firebase.auth().currentUser.uid).once('value', (snapshot) => {
+      db.ref('posts/').orderByChild("userId").equalTo(user.id).once('value', (snapshot) => {
         let history = [];
         snapshot.forEach((childSnapshot) => {              
           let temp = childSnapshot.val();
@@ -319,14 +249,24 @@ export default function ProfileScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={{alignSelf:"flex-start", marginLeft:"5%"}} onPress={()=> navigation.goBack()}>
-            <Icon
-              name={"arrow-left"}
-              size={25}
-              color={colors.WHITE}
-              type="feather"
-            />
-          </TouchableOpacity>
+          <View style={styles.headerTop}>
+            <TouchableOpacity onPress={()=> navigation.goBack()}>
+              <Icon
+                name={"arrow-left"}
+                size={25}
+                color={colors.WHITE}
+                type="feather"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=> firebase.auth().signOut()}>
+              <Icon
+                name={"logout"}
+                size={25}
+                color={colors.WHITE}
+                type="father"
+              />
+            </TouchableOpacity>
+          </View>
           {(user?.photoURL || image )?
             <TouchableOpacity style={styles.headerButton} onPress={pickImage} onLongPress={openCamera} disabled={user.id !== firebase.auth().currentUser.uid}>
               <Image source={{uri: image ? image : user.photoURL}} style={styles.profilePic} />
@@ -403,6 +343,13 @@ const styles = StyleSheet.create({
     flex:1.5,
     backgroundColor:colors.GRAY,
     // padding:"5%"
+  },
+  headerTop:{
+    // backgroundColor:"red", 
+    width:"90%", 
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between"
   },
   bodyContainer:{
     flex:1,

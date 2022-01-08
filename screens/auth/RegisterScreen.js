@@ -176,6 +176,7 @@ export default function RegisterScreen({ navigation }) {
                   value={phone}
                   inputStyle={styles.input}
                   inputContainerStyle={styles.inputContainer}
+                  keyboardType={"phone-pad"}
                   // errorStyle={}
                   
                 />

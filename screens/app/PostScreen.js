@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Dimensions, TouchableOpacity, Modal} from 'react-native';
 import {colors, font} from '../../theme/theme';
-import {Input, Icon} from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
-import { showMessage } from "react-native-flash-message";
-import db from '../../db';
+// import { showMessage } from "react-native-flash-message";
+// import db from '../../db';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;

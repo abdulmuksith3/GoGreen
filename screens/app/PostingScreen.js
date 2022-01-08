@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Image, Platform} from 'react-native';
+import {StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Image} from 'react-native';
 import {colors, font} from '../../theme/theme';
 import {Input, Icon} from 'react-native-elements';
 import firebase from "firebase";
@@ -14,7 +14,7 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function PostingScreen({ route, navigation }) {
   const { type } = route.params;
-  const [modalVisible, setModalVisible] = useState(false)
+  // const [modalVisible, setModalVisible] = useState(false)
   const [user, setUser] = useState(null)
   const [count, setCount] = useState(1)
   const [solarType, setSolarType] = useState("charge")
